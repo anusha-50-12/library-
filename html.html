@@ -1,0 +1,122 @@
+.html
+
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous" />
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="p-4 col-12 bg-container">
+                <h1 class="main-heading">Library <br />Management</h1>
+                <input id="searchInput" type="search" placeholder="Type book title" class="w-90 mb-3">
+            </div>
+            <div class="col-12">
+                <div class="mt-3 text-center">
+                    <div id="spinner" class="d-none spinner-border text-dark" role="status">
+                        <div class="st-3 text-center">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <p id="message"></p>
+                    </div>
+                </div>
+                <div id="searchResults" class="col-12">
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</body>
+
+</html>
+
+
+
+.css
+
+
+@import url('https://fonts.googleapis.com/css2?family=Bree+Serif&family=Caveat:wght@400;700&family=Lobster&family=Monoton&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Playfair+Display+SC:ital,wght@0,400;0,700;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,700&family=Roboto:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+Pro:ital,wght@0,400;0,700;1,700&family=Work+Sans:ital,wght@0,400;0,700;1,700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Bree+Serif&family=Caveat:wght@400;700&family=Lobster&family=Monoton&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Playfair+Display+SC:ital,wght@0,400;0,700;1,700&family=Playfair+Display:ital,wght@0,400;0,700;1,700&family=Roboto:ital,wght@0,400;0,700;1,400;1,700&family=Source+Sans+Pro:ital,wght@0,400;0,700;1,700&family=Work+Sans:ital,wght@0,400;0,700;1,700&display=swap");
+
+.bg-container {
+    background-image: url('https://assets.ccbp.in/frontend/dynamic-webapps/library-management-bg.png');
+    height: 60vh;
+    width: 100vw;
+    background-size: cover;
+}
+
+.main-heading {
+    color: #ffffff;
+    font-family: Roboto;
+}
+
+
+
+.js
+
+
+let searchInputEle = document.getElementById("searchInput");
+let searchResultsEle = document.getElementById("searchResults");
+let messageEle = document.getElementById("message");
+let spinnerEle = document.getElementById("spinner");
+let headingEle = document.createElement("h1");
+
+function createAndAppendSearchResults(search_results) {
+    if (search_results.length < 1) {
+        messageEle.textContent = "No Results Found";
+        searchResultsEle.textContent = "";
+        headingEle.textContent = "";
+    } else {
+        searchResultsEle.textContent = "";
+        messageEle.textContent = "";
+        headingEle.textContent = "Popular Books";
+        searchResultsEle.appendChild(headingEle);
+        for (let eachItem of search_results) {
+            let title = eachItem.title;
+            let image = eachItem.imageLink;
+            let author = eachItem.author;
+            let imageEle = document.createElement("img");
+            let textEle = document.createElement("p");
+            imageEle.setAttribute("src", image);
+            textEle.textContent = author;
+            searchResultsEle.appendChild(imageEle);
+            searchResultsEle.appendChild(textEle);
+            console.log(eachItem);
+
+        }
+    }
+}
+
+searchInputEle.addEventListener("keydown", function(event) {
+
+    if (event.key === "Enter") {
+        spinnerEle.classList.toggle("d-none");
+        let searchInputVal = searchInputEle.value;
+        let url = "https://apis.ccbp.in/book-store?title=" + searchInputVal;
+        let options = {
+            method: "GET"
+        };
+
+        fetch(url, options)
+            .then(function(response) {
+                return response.json();
+            })
+            .then(function(jsonData) {
+
+                let {
+                    search_results
+
+                } = jsonData;
+                createAndAppendSearchResults(search_results);
+                spinnerEle.classList.toggle("d-none");
+            });
+    }
+});
